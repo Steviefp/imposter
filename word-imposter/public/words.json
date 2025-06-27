@@ -1,0 +1,58 @@
+{
+  "Food": [
+    "Banana",
+    "Pizza",
+    "Sushi",
+    "Burger",
+    "Taco"
+  ],
+  "Games": [
+    "Valorant",
+    "Minecraft",
+    "Among Us",
+    "League of Legends",
+    "Fortnite"
+  ],
+  "Animals": [
+    "Dog",
+    "Elephant",
+    "Tiger",
+    "Penguin",
+    "Kangaroo"
+  ],
+  "Countries": [
+    "Brazil",
+    "Japan",
+    "Canada",
+    "Egypt",
+    "Australia"
+  ],
+  "Movies": [
+    "Inception",
+    "Titanic",
+    "Avatar",
+    "The Godfather",
+    "Shrek"
+  ],
+  "Sports": [
+    "Soccer",
+    "Basketball",
+    "Tennis",
+    "Baseball",
+    "Hockey"
+  ],
+  "Colors": [
+    "Red",
+    "Blue",
+    "Green",
+    "Yellow",
+    "Purple"
+  ],
+  "Instruments": [
+    "Guitar",
+    "Piano",
+    "Drums",
+    "Violin",
+    "Flute"
+  ]
+}

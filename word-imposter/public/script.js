@@ -9,17 +9,17 @@ function joinRoom() {
   document.getElementById("game").style.display = "block";
 }
 
-socket.on("gameStart", ({ word, isImposter, players }) => {
+socket.on("gameStart", ({ word, isImposter, players, genre }) => {
   document.getElementById("role").textContent = isImposter
     ? "You're the Imposter!"
-    : "You're a Crewmate.";
-  document.getElementById("role").classList.remove("imposter", "crewmate");
+    : "You're not the Imposter.";
+  document.getElementById("role").classList.remove("imposter", "notImposter");
   document
     .getElementById("role")
-    .classList.add(isImposter ? "imposter" : "crewmate");
+    .classList.add(isImposter ? "imposter" : "notImposter");
   document.getElementById("wordDisplay").textContent = word
-    ? `The word is: ${word}`
-    : "";
+    ? `The Genre is: ${genre} and the word is: ${word}`
+    : `The Genre is: ${genre}`;
 });
 
 function sendClue() {

@@ -2,9 +2,33 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 
+const fs = require("fs");
+const path = require('path');
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+
+function getRandomWordAndGenre(filePath = './public/words.json') {
+  try {
+    const data = JSON.parse(fs.readFileSync(path.resolve(filePath), 'utf8'));
+    const genres = Object.keys(data);
+
+    if (genres.length === 0) throw new Error("No genres found in JSON.");
+
+    const genre = genres[Math.floor(Math.random() * genres.length)];
+    const words = data[genre];
+
+    if (!Array.isArray(words) || words.length === 0) throw new Error(`No words found for genre "${genre}".`);
+
+    const word = words[Math.floor(Math.random() * words.length)];
+    return { genre, word };
+  } catch (err) {
+    console.error("Error reading or parsing words.json:", err.message);
+    return null;
+  }
+}
+
 
 app.use(express.static("public"));
 
@@ -21,14 +45,15 @@ io.on("connection", (socket) => {
     if (rooms[roomCode].length === 4) {
       const players = rooms[roomCode];
       const imposterIndex = Math.floor(Math.random() * 4);
-      const word = "banana";
+      const {genre, word} = getRandomWordAndGenre();
 
       players.forEach((player, i) => {
         player.isImposter = i === imposterIndex;
         io.to(player.id).emit("gameStart", {
           word: player.isImposter ? null : word,
           isImposter: player.isImposter,
-          players: players.map(p => ({ name: p.name }))
+          players: players.map(p => ({ name: p.name })),
+          genre: genre
         });
       });
     }
@@ -58,14 +83,25 @@ io.on("connection", (socket) => {
 
     if (!player.votes) player.votes = 0;
     player.votes++;
+    const imposterName = players.find(p => p.isImposter).name;
 
     const totalVotes = players.reduce((sum, p) => sum + (p.votes || 0), 0);
     if (totalVotes === 4) {
-      const mostVoted = players.reduce((a, b) => (a.votes || 0) > (b.votes || 0) ? a : b);
+      
+      // -1 if tie, otherwise the player with the most votes
+      const mostVoted = players.reduce((a, b) => a === -1 || b === -1 ? -1 : 
+                                      (a.votes || 0) > (b.votes || 0) ? a : 
+                                      (a.votes || 0) < (b.votes || 0) ? b : -1);
+    
+      // if tie, imposter wins
+      if(mostVoted === -1) {
+        io.to(roomCode).emit("result", { votedOut: "No one", result: "It's a tie! Imposter wins", imposterName });
+        delete rooms[roomCode]; // reset room
+        console.log("========== TIE DETECTED ==========");
+        return;
+      }
       const result = mostVoted.isImposter ? "Crew Wins!" : "Imposter Wins!";
-      const imposterName = players.find(p => p.isImposter).name;
-      console.log("TESTING HAHA")
-      console.log(imposterName);
+
       io.to(roomCode).emit("result", { votedOut: mostVoted.name, result, imposterName});
       delete rooms[roomCode]; // reset room
     }
