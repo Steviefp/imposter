@@ -39,6 +39,8 @@ socket.on("showClues", (clues) => {
   voteSection.style.display = "block";
   voteSection.innerHTML = "<h3>Vote who is the Imposter:</h3>";
   clues.forEach((c) => {
+    if(c.name === document.getElementById("name").value) return; // Skip self voting
+    
     const btn = document.createElement("button");
     btn.textContent = c.name;
     btn.onclick = () => {

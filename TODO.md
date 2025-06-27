@@ -1,6 +1,6 @@
 # TODO LIST
 - [x] implement tie feature
-- [] Have user not be able to vote themself (delete their button)
+- [x] Have user not be able to vote themself (delete their button)
 - [x] word and genre json implementation that randomly is generated upon game start
 - [] restart feature
 - [] proper lobby creation, invite link
