@@ -11,6 +11,8 @@ function joinRoom() {
 
 socket.on("gameStart", ({ word, isImposter, players }) => {
   document.getElementById("role").textContent = isImposter ? "You're the Imposter!" : "You're a Crewmate.";
+  document.getElementById("role").classList.remove("imposter", "crewmate");
+  document.getElementById("role").classList.add(isImposter ? "imposter" : "crewmate");
   document.getElementById("wordDisplay").textContent = word ? `The word is: ${word}` : "";
 });
 
@@ -38,7 +40,7 @@ socket.on("showClues", (clues) => {
   });
 });
 
-socket.on("result", ({ votedOut, result }) => {
+socket.on("result", ({ votedOut, result, imposterName}) => {
   document.getElementById("voteSection").style.display = "none";
-  document.getElementById("result").textContent = `Voted out: ${votedOut}. ${result}`;
+  document.getElementById("result").textContent = `Voted out: ${votedOut}. ${result}. Imposter was: ${imposterName}`;
 });

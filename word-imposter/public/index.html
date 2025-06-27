@@ -7,8 +7,8 @@
 <body>
   <h1>Imposter Word Game</h1>
   <div id="lobby">
-    <input id="name" placeholder="Your name">
-    <input id="room" placeholder="Room code">
+    <input id="name" placeholder="Your name" autocomplete="off">
+    <input id="room" placeholder="Room code" autocomplete="off">
     <button onclick="joinRoom()">Join</button>
   </div>
 
@@ -16,7 +16,7 @@
     <p id="role"></p>
     <p id="wordDisplay"></p>
     <div id="clueSection">
-      <input id="clue" placeholder="One-word clue">
+      <input id="clue" placeholder="One-word clue" autocomplete="off">
       <button onclick="sendClue()">Submit Clue</button>
     </div>
     <div id="clues"></div>

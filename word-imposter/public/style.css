@@ -57,8 +57,18 @@ button:hover {
   border-radius: 6px;
 }
 
+.imposter {
+  color: red;
+}
+
+.crewmate {
+  color: #00ffa2;
+}
+
+
 #result {
   margin-top: 20px;
   font-weight: bold;
   font-size: 1.3rem;
-  co
+  color: #ff7675;
+}

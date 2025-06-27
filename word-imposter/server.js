@@ -14,7 +14,7 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", ({ roomCode, name }) => {
     if (!rooms[roomCode]) rooms[roomCode] = [];
 
-    rooms[roomCode].push({ id: socket.id, name, clue: "", isImposter: false });
+    rooms[roomCode].push({ id: socket.id, name, clue: "", isImposter: false, hasVoted: false });
     socket.join(roomCode);
 
     // Start game when 4 players join
@@ -49,6 +49,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("vote", ({ roomCode, votedId }) => {
+    console.log("========== vote handler TRIGGERED ==========");
+    console.log("Room code:", roomCode);
+    console.log("Voted ID:", votedId);
+
     const players = rooms[roomCode];
     const player = players.find(p => p.id === votedId);
 
@@ -59,7 +63,10 @@ io.on("connection", (socket) => {
     if (totalVotes === 4) {
       const mostVoted = players.reduce((a, b) => (a.votes || 0) > (b.votes || 0) ? a : b);
       const result = mostVoted.isImposter ? "Crew Wins!" : "Imposter Wins!";
-      io.to(roomCode).emit("result", { votedOut: mostVoted.name, result });
+      const imposterName = players.find(p => p.isImposter).name;
+      console.log("TESTING HAHA")
+      console.log(imposterName);
+      io.to(roomCode).emit("result", { votedOut: mostVoted.name, result, imposterName});
       delete rooms[roomCode]; // reset room
     }
   });
