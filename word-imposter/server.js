@@ -32,6 +32,8 @@ function getRandomWordAndGenre(filePath = "./public/words.json") {
   }
 }
 
+
+
 app.use(express.static("public"));
 
 const rooms = {}; // Store game state per room
@@ -48,6 +50,7 @@ io.on("connection", (socket) => {
       hasVoted: false,
     });
     socket.join(roomCode);
+    socket.emit("yourID", socket.id);
 
     // Start game when 4 players join
     if (rooms[roomCode].length === 4) {

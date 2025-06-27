@@ -1,6 +1,14 @@
 const socket = io();
 let roomCode = "";
 
+let mySocketID = null;
+
+socket.on("yourID", (id) => {
+  mySocketID = id;
+  console.log("My Socket ID:", mySocketID);
+});
+
+
 function joinRoom() {
   const name = document.getElementById("name").value;
   roomCode = document.getElementById("room").value;
@@ -39,8 +47,9 @@ socket.on("showClues", (clues) => {
   voteSection.style.display = "block";
   voteSection.innerHTML = "<h3>Vote who is the Imposter:</h3>";
   clues.forEach((c) => {
-    if(c.name === document.getElementById("name").value) return; // Skip self voting
+    if(mySocketID === c.id) return; // Don't show button for self
     
+    // Create a button for each player to vote
     const btn = document.createElement("button");
     btn.textContent = c.name;
     btn.onclick = () => {
