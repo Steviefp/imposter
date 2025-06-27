@@ -8,14 +8,22 @@ socket.on("yourID", (id) => {
   console.log("My Socket ID:", mySocketID);
 });
 
+socket.on("uniqueNameError", (message) => {
+  alert(message); // or display it in the UI however you want
+});
+
+
 
 function joinRoom() {
   const name = document.getElementById("name").value;
   roomCode = document.getElementById("room").value;
   socket.emit("joinRoom", { name, roomCode });
+}
+
+socket.on("joinedSuccessfully", () => {
   document.getElementById("lobby").style.display = "none";
   document.getElementById("game").style.display = "block";
-}
+});
 
 socket.on("gameStart", ({ word, isImposter, players, genre }) => {
   document.getElementById("role").textContent = isImposter

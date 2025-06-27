@@ -42,6 +42,13 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", ({ roomCode, name }) => {
     if (!rooms[roomCode]) rooms[roomCode] = [];
 
+    console.log("========== joinRoom handler TRIGGERED ==========");
+    // Ensure unique name in room
+    const nameTaken = rooms[roomCode].some(player => player.name === name);
+    if (nameTaken) {
+      socket.emit("uniqueNameError", "Name already taken in this room.");
+      return;
+    }
     rooms[roomCode].push({
       id: socket.id,
       name,
@@ -51,6 +58,7 @@ io.on("connection", (socket) => {
     });
     socket.join(roomCode);
     socket.emit("yourID", socket.id);
+    socket.emit("joinedSuccessfully");
 
     // Start game when 4 players join
     if (rooms[roomCode].length === 4) {

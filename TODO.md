@@ -2,6 +2,7 @@
 - [x] implement tie feature
 - [x] Have user not be able to vote themself (delete their button)
 - [x] word and genre json implementation that randomly is generated upon game start
+- [] unique names in room
 - [] restart feature
 - [] proper lobby creation, invite link
 - [] Explain how the game works page
