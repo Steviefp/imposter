@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Imposter Word Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Imposter Word Game</h1>
+  <div id="lobby">
+    <input id="name" placeholder="Your name">
+    <input id="room" placeholder="Room code">
+    <button onclick="joinRoom()">Join</button>
+  </div>
+
+  <div id="game" style="display:none;">
+    <p id="role"></p>
+    <p id="wordDisplay"></p>
+    <div id="clueSection">
+      <input id="clue" placeholder="One-word clue">
+      <button onclick="sendClue()">Submit Clue</button>
+    </div>
+    <div id="clues"></div>
+    <div id="voteSection" style="display:none;"></div>
+    <p id="result"></p>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

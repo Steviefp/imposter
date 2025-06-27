@@ -1,0 +1,64 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #1e1e2f;
+  color: #f4f4f4;
+  text-align: center;
+  padding: 20px;
+  margin: 0;
+}
+
+h1, h3 {
+  color: #ffde59;
+}
+
+input, button {
+  padding: 10px;
+  margin: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+input {
+  width: 200px;
+}
+
+button {
+  background-color: #4a90e2;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #367bd1;
+}
+
+#game, #lobby {
+  max-width: 600px;
+  margin: auto;
+  background-color: #2d2d44;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+#wordDisplay {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #00ffa2;
+}
+
+#clues p {
+  background-color: #333854;
+  padding: 10px;
+  margin: 5px auto;
+  width: 80%;
+  border-radius: 6px;
+}
+
+#result {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 1.3rem;
+  co
