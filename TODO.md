@@ -3,7 +3,7 @@
 - [x] Have user not be able to vote themself (delete their button)
 - [x] word and genre json implementation that randomly is generated upon game start
 - [x] unique names in room
-- [] after entering clue, send clue out immediately, and waiting for others text
+- [x] after entering clue, send clue out immediately, and waiting for others text
 - [] restart feature
 - [] proper lobby creation, invite link
 - [] Explain how the game works page
