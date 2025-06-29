@@ -9,6 +9,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+function generateUniqueRoomCode() {
+  const code = Math.random().toString(36).substring(2, 8).toLowerCase();
+  // Ensure the code is unique by checking against existing rooms
+  if (Object.keys(rooms).includes(code)) {
+    return generateUniqueRoomCode(); // Recursively generate a new code
+  }
+  return code;
+}
+
 function getRandomWordAndGenre(filePath = "./public/words.json") {
   try {
     const data = JSON.parse(fs.readFileSync(path.resolve(filePath), "utf8"));
@@ -33,22 +42,9 @@ function getRandomWordAndGenre(filePath = "./public/words.json") {
 }
 // ROUTING
 app.use(express.static("public"));
+const setupRoutes = require("./routes");
+setupRoutes(app);
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/index.html"));
-});
-
-app.get("/join", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/joinGame.html"));
-});
-
-app.get("/lobby", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/lobby.html"));
-});
-
-app.get("/help", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/help.html"));
-});
 
 const rooms = {}; // Store game state per room
 
