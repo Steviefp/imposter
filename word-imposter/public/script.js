@@ -12,8 +12,6 @@ socket.on("uniqueNameError", (message) => {
   alert(message); // or display it in the UI however you want
 });
 
-
-
 function joinRoom() {
   const name = document.getElementById("name").value;
   roomCode = document.getElementById("room").value;
@@ -39,12 +37,38 @@ socket.on("gameStart", ({ word, isImposter, players, genre }) => {
 });
 
 function sendClue() {
-  const clue = document.getElementById("clue").value;
+  const clueInput = document.getElementById("clue");
+  const clue = clueInput.value.trim();
+
+  if (!clue) {
+    alert("Please enter a clue.");
+    return;
+  }
+
+  const clueContainer = document.getElementById("clues");
+
+  // If no clues have been displayed yet, allow submission without duplicate check
+  if (!clueContainer || clueContainer.querySelectorAll("p").length === 0) {
+    console.log("No existing clues, skipping duplicate check.");
+  } else {
+    const existingClues = Array.from(clueContainer.querySelectorAll("p"))
+      .map(p => p.textContent.split(":")[1]?.trim().toLowerCase());
+
+    if (existingClues.includes(clue.toLowerCase())) {
+      alert("This clue has already been submitted. Please enter a new clue.");
+      return;
+    }
+  }
+
+  // Emit to server
   socket.emit("submitClue", { roomCode, clue });
+
+  // Optional: clear input field after sending
+  clueInput.value = "";
 }
 
 socket.on("showClues", (clues) => {
-  document.getElementById("clueSection").style.display = "none";
+  //document.getElementById("clueSection").style.display = "none";
   const container = document.getElementById("clues");
   container.innerHTML = "<h3>Clues:</h3>";
   clues.forEach((c) => {
@@ -55,8 +79,8 @@ socket.on("showClues", (clues) => {
   voteSection.style.display = "block";
   voteSection.innerHTML = "<h3>Vote who is the Imposter:</h3>";
   clues.forEach((c) => {
-    if(mySocketID === c.id) return; // Don't show button for self
-    
+    if (mySocketID === c.id) return; // Don't show button for self
+
     // Create a button for each player to vote
     const btn = document.createElement("button");
     btn.textContent = c.name;

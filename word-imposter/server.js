@@ -32,8 +32,6 @@ function getRandomWordAndGenre(filePath = "./public/words.json") {
   }
 }
 
-
-
 app.use(express.static("public"));
 
 const rooms = {}; // Store game state per room
@@ -44,7 +42,7 @@ io.on("connection", (socket) => {
 
     console.log("========== joinRoom handler TRIGGERED ==========");
     // Ensure unique name in room
-    const nameTaken = rooms[roomCode].some(player => player.name === name);
+    const nameTaken = rooms[roomCode].some((player) => player.name === name);
     if (nameTaken) {
       socket.emit("uniqueNameError", "Name already taken in this room.");
       return;
@@ -81,18 +79,35 @@ io.on("connection", (socket) => {
   socket.on("submitClue", ({ roomCode, clue }) => {
     const players = rooms[roomCode];
     const player = players.find((p) => p.id === socket.id);
+
+    if (!player) return;
+
     player.clue = clue;
 
-    if (players.every((p) => p.clue)) {
-      io.to(roomCode).emit(
-        "showClues",
-        players.map((p) => ({
+    // Let this player know their clue was accepted
+    socket.emit("clueReceived", { success: true });
+
+    // 🔄 Realtime status update for all players
+    io.to(roomCode).emit(
+      "playerUpdated",
+      players.map((p) => ({
+        name: p.name,
+        hasClue: !!p.clue,
+        id: p.id,
+      }))
+    );
+
+    // 📤 Immediately show all submitted clues (even partial)
+    io.to(roomCode).emit(
+      "showClues",
+      players
+        .filter((p) => p.clue) // only show those who submitted
+        .map((p) => ({
           name: p.name,
           clue: p.clue,
           id: p.id,
         }))
-      );
-    }
+    );
   });
 
   socket.on("vote", ({ roomCode, votedId }) => {
