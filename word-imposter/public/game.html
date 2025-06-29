@@ -6,18 +6,7 @@
   </head>
   <body>
     <h1>Imposter Word Game</h1>
-    <div id="lobby">
-      <input id="name" placeholder="Your name" autocomplete="off" />
-      <input id="room" placeholder="Room code" autocomplete="off" />
-      <div>
-        <button onclick="joinRoom()">Join</button>
-
-        <button onclick="location.href='/'">Back</button>
-      </div>
-    </div>
-    <div>
-      <div id="playerList"></div>
-    </div>
+    
 
     <div id="game" style="display: none">
       <p id="role"></p>
@@ -32,7 +21,6 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="components/playerList.js"></script>
-    <script src="scripts/lobbyJoin.js"></script>
+    <script src="scripts/gameLogic.js"></script>
   </body>
 </html>

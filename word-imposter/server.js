@@ -56,16 +56,31 @@ io.on("connection", (socket) => {
     rooms[roomCode] = []; // Initialize room with empty player list
   });
 
-  socket.on("joinRoom", ({ roomCode, name }) => {
-    if (!rooms[roomCode]) rooms[roomCode] = [];
+  socket.on("joinRoom", ({ roomCode, name, host = false }) => {
+    if (!rooms[roomCode] && !host) {
+      console.log(
+        "========== joinRoom handler TRIGGERED - ROOM NOT FOUND =========="
+      );
+      socket.emit("roomNotFound", "Room does not exist.");
+      return;
+    }
 
     console.log("========== joinRoom handler TRIGGERED ==========");
     // Ensure unique name in room
     const nameTaken = rooms[roomCode].some((player) => player.name === name);
-    if (nameTaken) {
-      socket.emit("uniqueNameError", "Name already taken in this room.");
+
+    // Check name length and uniqueness
+    if(name.length < 1 || name.length > 20) {
+      socket.emit("uniqueNameError", "Name must be between 3 and 20 characters.");
+      console.log("========== joinRoom handler TRIGGERED - NAME LENGTH ERROR ==========");
       return;
     }
+    if (nameTaken) {
+      socket.emit("uniqueNameError", "Name already taken in this room.");
+      console.log("========== joinRoom handler TRIGGERED - NAME TAKEN ==========");
+      return;
+    }
+
     rooms[roomCode].push({
       id: socket.id,
       name,
@@ -76,6 +91,12 @@ io.on("connection", (socket) => {
     socket.join(roomCode);
     socket.emit("yourID", socket.id);
     socket.emit("joinedSuccessfully");
+    
+    // sends updated live player list to all players in the room
+    rooms[roomCode].forEach((player) => {
+      io.to(player.id).emit("currentPlayers", rooms[roomCode].map((p) => ({ name: p.name, id: p.id })));
+    });
+    
 
     // Start game when 4 players join
     if (rooms[roomCode].length === 4) {
