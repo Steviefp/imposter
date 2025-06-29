@@ -1,11 +1,17 @@
 const socket = io();
 
-socket.emit("createRoom");
+function createGame() {
+  const name = document.getElementById("name").value.trim();
+  if (!name) {
+    alert("Please enter your name.");
+    return;
+  }
 
-// display room code
-
-let roomCode = generateUniqueRoomCode();
-document.getElementById("roomCode").textContent = roomCode;
+  socket.emit("createRoom", name);
+  socket.on("roomCreated", (roomCode) => {
+    document.getElementById("roomCode").textContent = roomCode;
+  });
+}
 
 let mySocketID = null;
 

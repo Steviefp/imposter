@@ -45,10 +45,17 @@ app.use(express.static("public"));
 const setupRoutes = require("./routes");
 setupRoutes(app);
 
-
 const rooms = {}; // Store game state per room
 
+// io socket handling
 io.on("connection", (socket) => {
+  socket.on("createRoom", () => {
+    console.log("========== createRoom handler TRIGGERED ==========");
+    const roomCode = generateUniqueRoomCode();
+    socket.emit("roomCreated", roomCode);
+    rooms[roomCode] = []; // Initialize room with empty player list
+  });
+
   socket.on("joinRoom", ({ roomCode, name }) => {
     if (!rooms[roomCode]) rooms[roomCode] = [];
 
