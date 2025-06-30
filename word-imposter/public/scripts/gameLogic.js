@@ -1,9 +1,9 @@
 const socket = io();
 const roomCode = sessionStorage.getItem("roomCode");
-const name = sessionStorage.getItem("playerName");
+const NAME = sessionStorage.getItem("playerName");
 const mySocketID = sessionStorage.getItem("socketID");
 
-socket.emit("rejoin", { roomCode, name });
+socket.emit("rejoin", { roomCode, name: NAME });
 
 socket.on("playersLoaded", () => {
   console.log("========== playersLoaded handler TRIGGERED ==========");
@@ -76,7 +76,10 @@ socket.on("showClues", (clues) => {
   voteSection.style.display = "block";
   voteSection.innerHTML = "<h3>Vote who is the Imposter:</h3>";
   clues.forEach((c) => {
+    console.log("name:", c.name);
+    console.log("clientName:", NAME);
     if (mySocketID === c.id) return; // Don't show button for self
+    if (NAME === c.name) return; // Don't show button for self
 
     // Create a button for each player to vote
     const btn = document.createElement("button");
