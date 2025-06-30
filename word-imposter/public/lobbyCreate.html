@@ -14,15 +14,15 @@
     <h4 id="roomCode">Loading...</h4>
     <p>Enter your name to create a new room:</p>
     <input id="name" placeholder="Your name" autocomplete="off">
-    <button onclick="createGame()">Submit Name</button>
+    <button onclick="createLobby()">Submit Name</button>
 
   </div>
-  <button onclick="location.href='/join'">Start Game</button>
+  <button onclick="startGame()">Start Game</button>
   <button onclick="location.href='/'">Back</button>
 
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="components/playerList.js"></script>
-  <script src="scripts/lobbyScript.js"></script>
+  <script src="scripts/lobbyCreate.js"></script>
 </body>
 </html>

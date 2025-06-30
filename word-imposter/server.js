@@ -53,6 +53,7 @@ io.on("connection", (socket) => {
     console.log("========== createRoom handler TRIGGERED ==========");
     const roomCode = generateUniqueRoomCode();
     socket.emit("roomCreated", roomCode);
+
     rooms[roomCode] = []; // Initialize room with empty player list
   });
 
@@ -70,14 +71,21 @@ io.on("connection", (socket) => {
     const nameTaken = rooms[roomCode].some((player) => player.name === name);
 
     // Check name length and uniqueness
-    if(name.length < 1 || name.length > 20) {
-      socket.emit("uniqueNameError", "Name must be between 3 and 20 characters.");
-      console.log("========== joinRoom handler TRIGGERED - NAME LENGTH ERROR ==========");
+    if (name.length < 1 || name.length > 20) {
+      socket.emit(
+        "uniqueNameError",
+        "Name must be between 3 and 20 characters."
+      );
+      console.log(
+        "========== joinRoom handler TRIGGERED - NAME LENGTH ERROR =========="
+      );
       return;
     }
     if (nameTaken) {
       socket.emit("uniqueNameError", "Name already taken in this room.");
-      console.log("========== joinRoom handler TRIGGERED - NAME TAKEN ==========");
+      console.log(
+        "========== joinRoom handler TRIGGERED - NAME TAKEN =========="
+      );
       return;
     }
 
@@ -91,33 +99,89 @@ io.on("connection", (socket) => {
     socket.join(roomCode);
     socket.emit("yourID", socket.id);
     socket.emit("joinedSuccessfully");
-    
+
     // sends updated live player list to all players in the room
     rooms[roomCode].forEach((player) => {
-      io.to(player.id).emit("currentPlayers", rooms[roomCode].map((p) => ({ name: p.name, id: p.id })));
+      io.to(player.id).emit(
+        "currentPlayers",
+        rooms[roomCode].map((p) => ({ name: p.name, id: p.id }))
+      );
     });
-    
+  });
+  socket.on("PlayerCheck", (roomCode) => {
+    let playersReady = false;
+    console.log("========== PlayerCheck handler TRIGGERED ==========");
+    console.log("length of players in room:", rooms[roomCode].length);
+    console.log("roomCode:", roomCode);
+    if (rooms[roomCode] && rooms[roomCode].length === 4) {
+      playersReady = true;
+    }
+    socket.emit("PlayerCheck", playersReady);
+  });
 
-    // Start game when 4 players join
-    if (rooms[roomCode].length === 4) {
-      const players = rooms[roomCode];
-      const imposterIndex = Math.floor(Math.random() * 4);
-      const { genre, word } = getRandomWordAndGenre();
+  socket.on("startGamePrepare", (roomCode) => {
+    console.log("========== startGamePrepare handler TRIGGERED ==========");
+    rooms[roomCode].forEach((player) => {
+      io.to(player.id).emit("startGamePrepare");
+      io.to(player.id).emit("playersLoaded");
+    });
+  });
 
-      players.forEach((player, i) => {
-        player.isImposter = i === imposterIndex;
-        io.to(player.id).emit("gameStart", {
-          word: player.isImposter ? null : word,
-          isImposter: player.isImposter,
-          players: players.map((p) => ({ name: p.name })),
-          genre: genre,
-        });
+  // Start game when 4 players join
+  socket.on("startGame", (roomCode) => {
+    console.log("========== startGame handler TRIGGERED ==========");
+    const players = rooms[roomCode];
+    const imposterIndex = Math.floor(Math.random() * 4);
+    const { genre, word } = getRandomWordAndGenre();
+    console.log(rooms);
+    console.log("imposterIndex:", imposterIndex);
+    players.forEach((player, i) => {
+      player.isImposter = i === imposterIndex;
+      io.to(player.id).emit("gameStart", {
+        word: player.isImposter ? null : word,
+        isImposter: player.isImposter,
+        players: players.map((p) => ({ name: p.name })),
+        genre: genre,
       });
+    });
+    //socket.emit("gameStart");
+  });
+
+  socket.on("rejoin", ({ roomCode, name }) => {
+    const room = rooms[roomCode];
+    if (!room) {
+      console.log(
+        "========== rejoin handler TRIGGERED - ROOM NOT FOUND =========="
+      );
+      return;
+    }
+
+    const player = room.find((p) => p.name === name);
+    if (player) {
+      // Update old socket ID to new one
+      player.id = socket.id;
+      socket.join(roomCode);
+      rooms[roomCode].forEach((player) => {
+        io.to(player.id).emit("playersLoaded");
+      });
+      console.log(
+        "========== rejoin handler TRIGGERED - PLAYER FOUND =========="
+      );
+    } else {
+      socket.emit("rejoinFailed", "Player not found.");
+      console.log(
+        "========== rejoin handler TRIGGERED - PLAYER NOT FOUND =========="
+      );
     }
   });
 
   socket.on("submitClue", ({ roomCode, clue }) => {
+    console.log("========== submitClue handler TRIGGERED ==========");
+    console.log("Room code:", roomCode);
+    console.log("Clue submitted:", clue);
     const players = rooms[roomCode];
+    console.log("players length:", players.length);
+    console.log("socket ID:", socket.id);
     const player = players.find((p) => p.id === socket.id);
 
     if (!player) return;
@@ -128,6 +192,7 @@ io.on("connection", (socket) => {
     socket.emit("clueReceived", { success: true });
 
     // 🔄 Realtime status update for all players
+    console.log("========== playerUpdated event TRIGGERED ==========");
     io.to(roomCode).emit(
       "playerUpdated",
       players.map((p) => ({
@@ -160,6 +225,7 @@ io.on("connection", (socket) => {
 
     if (!player.votes) player.votes = 0;
     player.votes++;
+    //console.log("players", players);
     const imposterName = players.find((p) => p.isImposter).name;
 
     const totalVotes = players.reduce((sum, p) => sum + (p.votes || 0), 0);
@@ -197,12 +263,13 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    for (const code in rooms) {
-      rooms[code] = rooms[code].filter((p) => p.id !== socket.id);
-      if (rooms[code].length === 0) delete rooms[code];
-    }
-  });
+  // socket.on("disconnect", () => {
+  //   console.log("========== disconnect handler TRIGGERED ==========");
+  //   for (const code in rooms) {
+  //     rooms[code] = rooms[code].filter((p) => p.id !== socket.id);
+  //     if (rooms[code].length === 0) delete rooms[code];
+  //   }
+  // });
 });
 
 server.listen(3000, () => console.log("Server on http://localhost:3000"));

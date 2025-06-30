@@ -1,29 +1,24 @@
 const socket = io();
-let roomCode = "";
+const roomCode = sessionStorage.getItem("roomCode");
+const name = sessionStorage.getItem("playerName");
+const mySocketID = sessionStorage.getItem("socketID");
 
-let mySocketID = null;
+socket.emit("rejoin", { roomCode, name });
 
-socket.on("yourID", (id) => {
-  mySocketID = id;
-  console.log("My Socket ID:", mySocketID);
+socket.on("playersLoaded", () => {
+  console.log("========== playersLoaded handler TRIGGERED ==========");
+  socket.emit("startGame", roomCode);
 });
 
-socket.on("uniqueNameError", (message) => {
-  alert(message); // or display it in the UI however you want
-});
 
-function joinRoom() {
-  const name = document.getElementById("name").value;
-  roomCode = document.getElementById("room").value;
-  socket.emit("joinRoom", { name, roomCode });
-}
 
-socket.on("joinedSuccessfully", () => {
-  document.getElementById("lobby").style.display = "none";
-  document.getElementById("game").style.display = "block";
-});
+
+
+
+
 
 socket.on("gameStart", ({ word, isImposter, players, genre }) => {
+  console.log("========== gameStart handler TRIGGERED ==========");
   document.getElementById("role").textContent = isImposter
     ? "You're the Imposter!"
     : "You're not the Imposter.";
@@ -35,6 +30,8 @@ socket.on("gameStart", ({ word, isImposter, players, genre }) => {
     ? `The Genre is: ${genre} and the word is: ${word}`
     : `The Genre is: ${genre}`;
 });
+
+
 
 function sendClue() {
   const clueInput = document.getElementById("clue");

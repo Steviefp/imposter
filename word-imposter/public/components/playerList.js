@@ -37,4 +37,5 @@ class PlayerListComponent {
   getElement() {
     return this.element;
   }
+
 }
